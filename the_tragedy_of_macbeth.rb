@@ -18,16 +18,7 @@ class TheTragedyOfMacbethXml
     speakers
   end
 
-  def lines_by_speech(speech_number)
-    speeches = self.get_speeches
-    lines = []
-    speeches[speech_number].search('LINE').map do |line|
-      lines << line.inner_text
-    end
-    lines.size
-  end
-
-  def lines_by_speech_2
+  def lines_by_speech
     doc = self.download_xml
     lines = []
     doc.search('SPEECH').map { |element| lines << element.search('LINE') }
@@ -35,12 +26,17 @@ class TheTragedyOfMacbethXml
   end
 
   def ordened_speeches
-    aux = ["ALL"]
     speakers = self.get_speakers
-    resultado = []
+    lines = self.lines_by_speech
+    result = {}
     (0..648).each do |i|
-      puts "#{speakers[i]} - #{self.lines_by_speech(i)}"
+      unless result.include?("#{speakers[i]}") || speakers[i] == "ALL"
+        result["#{speakers[i]}"] = lines[i].size
+      else
+        # sumar los valores
+      end
     end
+    result
   end
 end
 
@@ -50,7 +46,7 @@ speakers = ttom.get_speakers
 speeches = ttom.get_speeches
 
 # puts speakers
-puts ttom.lines_by_speech_2.size
-# puts ttom.ordened_speeches
+# puts ttom.lines_by_speech
+puts ttom.ordened_speeches
 
 # puts ttom.ordened_speeches
