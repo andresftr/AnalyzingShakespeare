@@ -6,41 +6,51 @@ class TheTragedyOfMacbethXml
     doc = Nokogiri::XML(open("http://www.ibiblio.org/xml/examples/shakespeare/macbeth.xml"))
   end
 
+  def get_speeches
+    doc = self.download_xml
+    doc.xpath('//SPEECH').each { |speech| speech.at_xpath('SPEAKER').content }.to_a
+  end
+
   def get_speakers
-    xml_play = self.download_xml
+    doc = self.download_xml
     speakers = []
-    xml_play.search('SPEECH').map do |element|
-      speakers << element.search('SPEAKER').inner_text
-    end
+    doc.search('SPEECH').map { |element| speakers << element.search('SPEAKER').inner_text }
     speakers
   end
 
-  def get_speeches(xml)
-    xml_play = xml.download_xml
-    xml_play.xpath('//SPEECH').each { |speech| speech.at_xpath('SPEAKER').content }.to_a
+  def lines_by_speech(speech_number)
+    speeches = self.get_speeches
+    lines = []
+    speeches[speech_number].search('LINE').map do |line|
+      lines << line.inner_text
+    end
+    lines.size
   end
 
-  def lines_of_nodeset(speechs)
-    speechs
+  def lines_by_speech_2
+    doc = self.download_xml
+    lines = []
+    doc.search('SPEECH').map { |element| lines << element.search('LINE') }
+    lines
+  end
+
+  def ordened_speeches
+    aux = ["ALL"]
+    speakers = self.get_speakers
+    resultado = []
+    (0..648).each do |i|
+      puts "#{speakers[i]} - #{self.lines_by_speech(i)}"
+    end
   end
 end
 
 ttom = TheTragedyOfMacbethXml.new
 
 speakers = ttom.get_speakers
+speeches = ttom.get_speeches
 
-puts speakers.size
+# puts speakers
+puts ttom.lines_by_speech_2.size
+# puts ttom.ordened_speeches
 
-# i = 0
-# speakers_sin_repetir = ["ALL"]
-# speakers.each do |speaker|
-#   unless speakers_sin_repetir.include? speaker
-#     i += 1
-#     puts "#{i} - #{speaker}"
-#     speakers_sin_repetir << speaker
-#   end
-# end
-
-# puts speeches = ttom.get_speeches(ttom)[29]
-
-# puts ttom.numbers_of_lines(speechs, ttom)
+# puts ttom.ordened_speeches
