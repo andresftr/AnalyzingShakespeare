@@ -14,18 +14,18 @@ class TheTragedyOfMacbethXml
   def get_speakers
     doc = self.download_xml
     speakers = []
-    doc.search('SPEECH').map { |element| speakers << element.search('SPEAKER').inner_text }
+    doc.search('SPEECH').map { |speech| speakers << speech.search('SPEAKER').inner_text }
     speakers
   end
 
   def lines_by_speech
     doc = self.download_xml
     lines = []
-    doc.search('SPEECH').map { |element| lines << element.search('LINE') }
+    doc.search('SPEECH').map { |speech| lines << speech.search('LINE') }
     lines
   end
 
-  def ordened_speeches
+  def number_lines_spoken_by_all_characters
     speakers = self.get_speakers
     lines = self.lines_by_speech
     result = {}
@@ -33,20 +33,23 @@ class TheTragedyOfMacbethXml
       unless result.include?("#{speakers[i]}") || speakers[i] == "ALL"
         result["#{speakers[i]}"] = lines[i].size
       else
-        # sumar los valores
+        unless speakers[i] == "ALL"
+          result["#{speakers[i]}"] += lines[i].size
+        end
       end
     end
     result
+  end
+
+  def n_lines_spoken_by_one_character(name_character)
+    hash_characters = self.number_lines_spoken_by_all_characters
+    number_lines = hash_characters[name_character]
+    "The character #{name_character} #{ hash_characters.has_key?(name_character)? "speak #{number_lines} line(s)" : "doesnt exist" }"
   end
 end
 
 ttom = TheTragedyOfMacbethXml.new
 
-speakers = ttom.get_speakers
-speeches = ttom.get_speeches
+ttom.number_lines_spoken_by_all_characters
 
-# puts speakers
-# puts ttom.lines_by_speech
-puts ttom.ordened_speeches
-
-# puts ttom.ordened_speeches
+puts ttom.n_lines_spoken_by_one_character("MACBETH")
